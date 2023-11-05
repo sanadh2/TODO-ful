@@ -6,15 +6,16 @@ const {
   updateTask,
   deleteTask,
   viewTasks,
+  deleteCompletedTask,
 } = require("../Controllers/fns");
 
-taskRouter.get("/", viewTasks);
+taskRouter.get("/get/", viewTasks);
 
-taskRouter.get("/:id", viewTask);
+taskRouter.get("/get/:id", viewTask);
 
-taskRouter.post("/", addTask);
+taskRouter.post("/post/", addTask);
 
-taskRouter.patch("/:id", updateTask);
-taskRouter.delete("/:id", deleteTask);
-
+taskRouter.patch("/patch/:id", updateTask);
+taskRouter.delete("/deleteTask/:id", deleteTask);
+taskRouter.delete("/deleteCompleted/", deleteCompletedTask);
 module.exports = { taskRouter };

@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://192.168.29.108:5137",
+    origin: "http://localhost:1111",
   })
 );
 

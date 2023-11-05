@@ -43,4 +43,16 @@ const deleteTask = asyncWrapper(async (req, res) => {
   res.status(200).json({ task });
 });
 
-module.exports = { addTask, deleteTask, updateTask, viewTasks, viewTask };
+const deleteCompletedTask = asyncWrapper(async (req, res, next) => {
+  const task = await Task.deleteMany({ completed: true });
+  return res.status(200).json({ task });
+});
+
+module.exports = {
+  addTask,
+  deleteTask,
+  updateTask,
+  viewTasks,
+  viewTask,
+  deleteCompletedTask,
+};

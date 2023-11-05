@@ -4,83 +4,89 @@ import axios from "axios";
 
 const App = () => {
   const [input, setInput] = useState("");
-  const [tasks, setTask] = useState(() => {
-    const storedTasks = JSON.parse(localStorage.getItem("Tasks"));
-    return storedTasks ? storedTasks : [];
-  });
-  const URL = "http://localhost:6969/api/v1/tasks";
+  const [Task, setTask] = useState([]);
   const config = {
     headers: {
       "Content-Type": "application/json",
     },
   };
 
-  const [Task, SetTask] = useState([]);
-  const [formData, setFormData] = useState({
-    name: "",
-    completed: false,
+  useEffect(() => {
+    getFetchData();
   });
   useEffect(() => {
     getFetchData();
-  }, []);
+  }, [Task]);
 
   const getFetchData = async () => {
-    await axios.get(URL).then((res) => SetTask(res.data.tasks));
-    console.log(Task);
+    await axios
+      .get("http://localhost:6969/api/v1/tasks/get/")
+      .then((res) => setTask(res.data.tasks));
   };
 
-  const postTasks = async (input) => {
+  const postTaskData = async (input) => {
     const postData = {
       name: input,
     };
     const jsonData = JSON.stringify(postData);
 
     await axios
-      .post(URL, jsonData, config)
+      .post("http://localhost:6969/api/v1/tasks/post/", jsonData, config)
       .then((response) => console.log(response))
       .catch((err) => console.log(err));
   };
 
-  const addTask = () => {
-    if (input === "") {
-      return;
-    }
-    postTasks(input);
-
-    setInput("");
-  };
-
-  const deleteTask = (char) => {
-    setTimeout(() => {
-      setTask(tasks.filter((el) => el.text !== char));
-    }, 200);
-  };
-  const reset = () => {
-    setTask([]);
-    localStorage.removeItem("Tasks");
-  };
-
-  const strikeThrough = (taskToStrike) => {
-    SetTask((prevTasks) =>
-      prevTasks.map((task) =>
-        task === taskToStrike ? { ...task, completed: !task.completed } : task
-      )
-    );
-    // console.log(taskToStrike._id);
-
-    patchTask(taskToStrike.completed, taskToStrike._id);
-  };
-
-  const patchTask = async (completed, id) => {
+  const patchTaskCompletion = async (completed, id) => {
     const patchData = {
       completed: !completed,
     };
     const jsonData = JSON.stringify(patchData);
     await axios
-      .patch(`http://localhost:6969/api/v1/tasks/${id}`, jsonData, config)
+      .patch(`http://localhost:6969/api/v1/tasks/patch/${id}`, jsonData, config)
       .catch((err) => console.log(err));
   };
-  
+  const deleteTaskData = async (id) => {
+    await axios
+      .delete(`http://localhost:6969/api/v1/tasks/deleteTask/${id}`)
+      .catch((err) => console.log(err));
+  };
+
+  const deleteCompleted = async (id) => {
+    await axios
+      .delete(`http://localhost:6969/api/v1/tasks/deleteCompleted/`)
+      .catch((err) => console.log(err));
+  };
+
+  const addTask = (event) => {
+    event.preventDefault();
+    if (input === "") return;
+
+    postTaskData(input);
+    setInput("");
+  };
+
+  const strikeThrough = (event, taskToStrike) => {
+    event.preventDefault();
+    setTask((prevTasks) =>
+      prevTasks.map((task) =>
+        task === taskToStrike ? { ...task, completed: !task.completed } : task
+      )
+    );
+    patchTaskCompletion(taskToStrike.completed, taskToStrike._id);
+  };
+
+  const deleteTask = async (event, task) => {
+    event.preventDefault();
+    await setTimeout(() => {
+      deleteTaskData(task._id);
+    }, 200);
+  };
+
+  const reset = (event) => {
+    event.preventDefault();
+    deleteCompleted();
+  };
+
   return (
     <>
       <div className="Container">
@@ -98,10 +104,10 @@ const App = () => {
               placeholder="Write a message"
             />
             <div>
-              <button className="button" onClick={addTask}>
+              <button className="button" onClick={(e) => addTask(e)}>
                 Add Task
               </button>
-              <button className="button" onClick={reset}>
+              <button className="button" onClick={(e) => reset(e)}>
                 Clear
               </button>
             </div>
@@ -114,18 +120,18 @@ const App = () => {
           </div>
         ) : (
           Task.map((task) => (
-            <div className="display" key={task._id}>
+            <div className="display yestask" key={task._id}>
               <input
                 type="checkbox"
                 checked={task.completed}
-                onChange={() => strikeThrough(task)}
+                onChange={(e) => strikeThrough(e, task)}
               />
 
               <p id="text1" className={task.completed ? "strike" : ""}>
                 {task.name}
               </p>
 
-              <button className="btn" onClick={() => deleteTask(task.text)}>
+              <button className="btn" onClick={(e) => deleteTask(e, task)}>
                 Delete
               </button>
             </div>

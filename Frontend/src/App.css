@@ -4,13 +4,15 @@ body {
   align-items: center;
   margin: 10vh;
 }
-
+h1 {
+  color: #eaf4f4;
+}
 .input {
   font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   font-weight: 500;
   color: #fff;
-  background-color: rgb(28, 28, 30);
+  background-color: #415a77;
   box-shadow: 0 0 0.4vw rgba(0, 0, 0, 0.5), 0 0 0 0.15vw transparent;
   border-radius: 4px;
   border: none;
@@ -38,9 +40,9 @@ body {
   font-family: "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   font-weight: 500;
-  --bg: rgb(28, 28, 30);
-  --hover-bg: #ff90e8;
-  --hover-text: rgb(28, 28, 30);
+  --bg: #003566;
+  --hover-bg: red;
+  --hover-text: #003566;
   color: #fff;
   margin-right: 5px;
   border: 1px solid var(--bg);
@@ -53,7 +55,6 @@ body {
 }
 
 .button:hover {
-  color: var(--hover-text);
   background: var(--hover-bg);
   box-shadow: 0.25rem 0.25rem var(--bg);
 }
@@ -70,7 +71,7 @@ body {
   justify-content: center;
   align-content: center;
   align-items: center;
-  background-color: rgb(60, 179, 154);
+  background-color: #0d1b2a;
   padding: 30px;
   border-radius: 3px;
 }
@@ -78,23 +79,30 @@ body {
 .display {
   display: flex;
   flex-direction: row;
-  background-color: rgb(112, 121, 240);
+  background-color: #e0e1dd;
   width: 20em;
   margin-top: 10px;
   gap: 15px;
-  justify-content: center;
+  justify-content: space-between;
   align-content: center;
   align-items: center;
   border-radius: 3px;
 }
-
+.yestask {
+  padding: 0rem 0.5rem;
+}
+.input::placeholder {
+  color: #8d99ae;
+}
 #text1,
 #text2 {
   font-size: 20px;
   font-weight: bold;
   color: black;
 }
-
+#text2 {
+  padding: 1rem;
+}
 .strike {
   text-decoration: line-through;
 }
@@ -128,7 +136,7 @@ body {
     width: 6em;
   }
   input[type="text"]::placeholder {
-    content: "message";
+    content: "Task Name";
   }
 }
 @media all and (max-width: 425px) {
