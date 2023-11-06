@@ -1,0 +1,8 @@
+.bttn {
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+}
+.input-text {
+  border: 1px solid black;
+}

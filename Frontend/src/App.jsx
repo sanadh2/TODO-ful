@@ -1,15 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import axios from "axios";
+
+import ABCD from "./Components/abcd";
 
 const App = () => {
   const [input, setInput] = useState("");
   const [Task, setTask] = useState([]);
+  const [isInputVisible, setIsInputVisible] = useState(false);
+  const [changeName, setChangeName] = useState(null);
+  const toggleInput = () => {
+    setIsInputVisible(!isInputVisible);
+  };
   const config = {
     headers: {
       "Content-Type": "application/json",
     },
   };
+
+  const inputRef = useRef(null);
 
   useEffect(() => {
     getFetchData();
@@ -32,13 +41,22 @@ const App = () => {
 
     await axios
       .post("http://localhost:6969/api/v1/tasks/post/", jsonData, config)
-      .then((response) => console.log(response))
+      // .then((response) => console.log(response))
       .catch((err) => console.log(err));
   };
 
   const patchTaskCompletion = async (completed, id) => {
     const patchData = {
       completed: !completed,
+    };
+    const jsonData = JSON.stringify(patchData);
+    await axios
+      .patch(`http://localhost:6969/api/v1/tasks/patch/${id}`, jsonData, config)
+      .catch((err) => console.log(err));
+  };
+  const patchTaskName = async (name, id) => {
+    const patchData = {
+      name: name,
     };
     const jsonData = JSON.stringify(patchData);
     await axios
@@ -67,6 +85,7 @@ const App = () => {
 
   const strikeThrough = (event, taskToStrike) => {
     event.preventDefault();
+
     setTask((prevTasks) =>
       prevTasks.map((task) =>
         task === taskToStrike ? { ...task, completed: !task.completed } : task
@@ -86,7 +105,12 @@ const App = () => {
     event.preventDefault();
     deleteCompleted();
   };
-
+  const enterKeyPressed = (event, task) => {
+    if (event.key == "Enter") {
+      patchTaskName(changeName, task._id);
+      toggleInput();
+    }
+  };
   return (
     <>
       <div className="Container">
@@ -99,9 +123,12 @@ const App = () => {
             <input
               type="text"
               value={input}
-              onChange={(val) => setInput(val.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
               className="input"
               placeholder="Write a message"
+              ref={inputRef}
             />
             <div>
               <button className="button" onClick={(e) => addTask(e)}>
@@ -127,17 +154,34 @@ const App = () => {
                 onChange={(e) => strikeThrough(e, task)}
               />
 
-              <p id="text1" className={task.completed ? "strike" : ""}>
-                {task.name}
-              </p>
-
-              <button className="btn" onClick={(e) => deleteTask(e, task)}>
+              {isInputVisible ? (
+                <input
+                  type="text"
+                  className="input2"
+                  onKeyDown={(e) => enterKeyPressed(e, task)}
+                  onChange={(e) => setChangeName(e.target.value)}
+                />
+              ) : (
+                <button onClick={toggleInput} className="btot">
+                  <p id="text1" className={task.completed ? "strike" : ""}>
+                    {task.name}
+                  </p>
+                </button>
+              )}
+              <button
+                className={`btn btn1`}
+                onClick={(event) => handleTextClick(event, task)}
+              >
+                Edit
+              </button>
+              <button className="btn btn2" onClick={(e) => deleteTask(e, task)}>
                 Delete
               </button>
             </div>
           ))
         )}
       </div>
+      {/* <ABCD /> */}
     </>
   );
 };
