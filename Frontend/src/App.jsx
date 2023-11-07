@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import axios from "axios";
-
-import ABCD from "./Components/abcd";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const [input, setInput] = useState("");
   const [Task, setTask] = useState([]);
-  const [isInputVisible, setIsInputVisible] = useState(false);
-  const [changeName, setChangeName] = useState(null);
-  const toggleInput = () => {
-    setIsInputVisible(!isInputVisible);
+  const [changeName, setChangeName] = useState(undefined);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const toggleInput = (e, id) => {
+    console.log(e);
+    setEditingTaskId(id);
   };
   const config = {
     headers: {
@@ -22,15 +23,31 @@ const App = () => {
 
   useEffect(() => {
     getFetchData();
-  });
-  useEffect(() => {
-    getFetchData();
   }, [Task]);
 
+  const setLS = () => {
+    localStorage.setItem("myData", JSON.stringify(Task));
+  };
+  setInterval(setLS, 5000);
   const getFetchData = async () => {
+    const storedData = JSON.parse(localStorage.getItem("myData"));
     await axios
       .get("http://localhost:6969/api/v1/tasks/get/")
-      .then((res) => setTask(res.data.tasks));
+      .then((res) => setTask(res.data.tasks))
+      .catch((err) => {
+        toast.error(err.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+
+        setTask(storedData);
+      });
   };
 
   const postTaskData = async (input) => {
@@ -41,7 +58,18 @@ const App = () => {
 
     await axios
       .post("http://localhost:6969/api/v1/tasks/post/", jsonData, config)
-      // .then((response) => console.log(response))
+      .then((response) =>
+        toast.success("Task Added", {
+          position: "top-right",
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        })
+      )
       .catch((err) => console.log(err));
   };
 
@@ -61,17 +89,53 @@ const App = () => {
     const jsonData = JSON.stringify(patchData);
     await axios
       .patch(`http://localhost:6969/api/v1/tasks/patch/${id}`, jsonData, config)
-      .catch((err) => console.log(err));
+      .catch((error) =>
+        toast.error("Cannot add null value!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        })
+      );
   };
   const deleteTaskData = async (id) => {
     await axios
       .delete(`http://localhost:6969/api/v1/tasks/deleteTask/${id}`)
+      .then((response) =>
+        toast.error("Delete success", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        })
+      )
       .catch((err) => console.log(err));
   };
 
   const deleteCompleted = async (id) => {
     await axios
       .delete(`http://localhost:6969/api/v1/tasks/deleteCompleted/`)
+      .then((response) =>
+        toast.success("🎉Cleared Completed Tasks", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        })
+      )
+
       .catch((err) => console.log(err));
   };
 
@@ -108,7 +172,10 @@ const App = () => {
   const enterKeyPressed = (event, task) => {
     if (event.key == "Enter") {
       patchTaskName(changeName, task._id);
-      toggleInput();
+      toggleInput(event, null);
+    }
+    if (event.key == "Escape") {
+      toggleInput(event, null);
     }
   };
   return (
@@ -146,7 +213,7 @@ const App = () => {
             No tasks Yet
           </div>
         ) : (
-          Task.map((task) => (
+          Task.map((task, index) => (
             <div className="display yestask" key={task._id}>
               <input
                 type="checkbox"
@@ -154,34 +221,47 @@ const App = () => {
                 onChange={(e) => strikeThrough(e, task)}
               />
 
-              {isInputVisible ? (
-                <input
-                  type="text"
-                  className="input2"
-                  onKeyDown={(e) => enterKeyPressed(e, task)}
-                  onChange={(e) => setChangeName(e.target.value)}
-                />
+              {editingTaskId == task._id ? (
+                <>
+                  <input
+                    key={task}
+                    type="text"
+                    className="input2"
+                    value={changeName}
+                    onKeyDown={(e) => enterKeyPressed(e, task)}
+                    onChange={(e) => setChangeName(e.target.value)}
+                  />
+                </>
               ) : (
-                <button onClick={toggleInput} className="btot">
+                <button
+                  onClick={(e) => toggleInput(e, task._id)}
+                  className="btot"
+                >
                   <p id="text1" className={task.completed ? "strike" : ""}>
                     {task.name}
                   </p>
                 </button>
               )}
-              <button
-                className={`btn btn1`}
-                onClick={(event) => handleTextClick(event, task)}
-              >
-                Edit
-              </button>
               <button className="btn btn2" onClick={(e) => deleteTask(e, task)}>
                 Delete
               </button>
             </div>
           ))
         )}
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          limit={1}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </div>
-      {/* <ABCD /> */}
     </>
   );
 };

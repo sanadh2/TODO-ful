@@ -1,23 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./abcd.css";
 
 const ABCD = () => {
-  const [isInputVisible, setIsInputVisible] = useState(false);
-  const toggleInput = () => {
-    setIsInputVisible(true);
-  };
+  const [count, setcount] = useState(0);
+
   return (
     <div>
-      <button id="myBtn">Open Modal</button>
-      <div id="myModal" className={`modal modal-type`}></div>
-      <div className="modal-content">
-        <p>Some text in the Modal..</p>
-        {isInputVisible ? (
-          <input type="text" />
-        ) : (
-          <button onClick={toggleInput}>Convert to Input</button>
-        )}
-      </div>
+      <button id="myBtn">{count}</button>
     </div>
   );
 };
